@@ -1,48 +1,77 @@
 import peasy.*;
+import ddf.minim.*;
 
 JSONObject weather;
 JSONArray values;
-String lines[];
-int radius = 300;
+String lines[], cityArray[], queryString, apiKey;
+int radius = 300, lastRefreshTime = 0;
 
 PImage satelliteImage;
 Globe g;
+GUI gui;
+
+Minim minim;
+AudioPlayer song;
 
 PeasyCam cam;
 
 void setup() {
-	size(800, 800,P3D);
-	//size(800, 800,OPENGL);
+	fullScreen(OPENGL);
 	cam = new PeasyCam(this, 800);
-	cam.setMinimumDistance(radius + 100);
+	cam.setMinimumDistance(radius + 105);
 	cam.setMaximumDistance(1100);
 
+	minim = new Minim(this);
+	//Ambient music from FreeSound.org
+	song = minim.loadFile("erokia__elementary-wave-11.wav", 2048);
+	song.loop();
+
+	apiKey = loadStrings("APIKey.txt")[0];
+
 	//Earth texture from https://visibleearth.nasa.gov/view.php?id=73826
-	//satelliteImage = loadImage("world.topo.bathy.200410.3x21600x10800.jpg");
 	satelliteImage = loadImage("world.topo.bathy.200410.3x5400x2700.jpg");
 	
-	//lines = loadStrings("http://api.openweathermap.org/data/2.5/find?q=Limerick,IE&units=metric&appid=a94c4c52ca111142f002dc06f2cf5fbf");
-	lines = loadStrings("weatherInfo2.json");
-	//println(lines);
-	weather = parseJSONObject(lines[0]);//returns JSONObject.
+	initializeGlobe();
 
-	g = new Globe(radius, satelliteImage, weather);
+	gui = new GUI(this, cam, apiKey);
+}
 
+void loadCityListCSV(){
+	cityArray = loadStrings("city-list.csv");
+	queryString = split(cityArray[int(random(0, cityArray.length-1))], ",")[0] + ","
+				+ split(cityArray[int(random(0, cityArray.length-1))], ",")[0] + ","
+				+ split(cityArray[int(random(0, cityArray.length-1))], ",")[0] + ","
+				+ split(cityArray[int(random(0, cityArray.length-1))], ",")[0] + ","
+				+ split(cityArray[int(random(0, cityArray.length-1))], ",")[0];
+  //println(queryString);
+}
+
+void updateCoordinates(){
+	lines = loadStrings("http://api.openweathermap.org/data/2.5/group?id=" + queryString +"&units=metric&appid=" + apiKey);
+	//lines = loadStrings("http://api.openweathermap.org/data/2.5/find?q=Limerick&units=metric&appid=a94c4c52ca111142f002dc06f2cf5fbf");
+	//lines = loadStrings("weatherInfo2.json"); //<>//
+	weather = parseJSONObject(lines[0]);//returns JSONObject.	
+}
+
+void initializeGlobe(){
+	loadCityListCSV();
+	updateCoordinates();
+	g = new Globe(radius, satelliteImage, weather, this);
 }
 
 void draw() {
-	background(50);
-	//translate(width * 0.5, height * 0.5);
-
+	background(0);
+	if ((millis() - lastRefreshTime) > 30000) {
+		lastRefreshTime = millis();
+		loadCityListCSV();
+		updateCoordinates();
+		g.updateGlobe(weather);
+		println("Refresh");
+	}
 	g.drawGlobe();
-	g.updateGlobe();	
+	g.updateGlobe();
 
-	/*textSize(50);
-	text(city, width/2, height/1.5);
-
-	textSize(100);
-	text(temperature, width/2, height/2);  */
-
+	gui.updateGUI();
 
 }
 
