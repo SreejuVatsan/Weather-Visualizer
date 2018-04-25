@@ -48,7 +48,6 @@ void loadCityListCSV(){
 
 void updateCoordinates(){
 	lines = loadStrings("http://api.openweathermap.org/data/2.5/group?id=" + queryString +"&units=metric&appid=" + apiKey);
-	//lines = loadStrings("http://api.openweathermap.org/data/2.5/find?q=Limerick&units=metric&appid=a94c4c52ca111142f002dc06f2cf5fbf");
 	//lines = loadStrings("weatherInfo2.json"); //<>//
 	weather = parseJSONObject(lines[0]);//returns JSONObject.	
 }
