@@ -3,7 +3,7 @@ A real-time, interactive weather visualizer aimed at visualizing the complex wea
 
 <a href="http://www.youtube.com/watch?feature=player_embedded&v=1vfcooGSAAg
 " target="_blank"><img src="http://img.youtube.com/vi/1vfcooGSAAg/0.jpg" 
-alt="Weather Globe" width="560" height="315" border="10" /></a>
+alt="Weather Globe" width="480" height="360" border="10" /></a>
 
 Ambient Music - Elementary Wave 11 by Erokia
 https://freesound.org/s/183881/
